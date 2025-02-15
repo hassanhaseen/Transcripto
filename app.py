@@ -3,7 +3,6 @@ import whisper
 import tempfile
 import os
 import warnings
-import torchaudio  # Replaces ffmpeg for audio loading
 from textblob import TextBlob
 from googletrans import Translator
 
@@ -43,20 +42,10 @@ language_code = language_options[selected_language]  # Get correct language code
 # Translator for multi-language sentiment analysis
 translator = Translator()
 
-# Function to Load Audio with `torchaudio` Instead of `ffmpeg`
-def load_audio(file_path):
-    waveform, sample_rate = torchaudio.load(file_path)
-    temp_wav = file_path.replace(file_path.split(".")[-1], "wav")
-    torchaudio.save(temp_wav, waveform, sample_rate)
-    return temp_wav
-
-# Function to Transcribe Audio
+# Function to Transcribe Audio (No FFmpeg)
 def transcribe_audio(file_path, language_code):
     if os.stat(file_path).st_size == 0:
         return "⚠️ Error: Empty audio file. Please try again."
-
-    # Convert to WAV using torchaudio
-    file_path = load_audio(file_path)
 
     try:
         result = model.transcribe(file_path, language=language_code)
