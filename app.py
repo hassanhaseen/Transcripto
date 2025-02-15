@@ -3,24 +3,15 @@ import whisper
 import tempfile
 import os
 import warnings
-import shutil
 from textblob import TextBlob
 from googletrans import Translator
+from pydub import AudioSegment
 
 # Suppress Whisper FP16 warning
 warnings.filterwarnings("ignore", message="FP16 is not supported on CPU")
 
 # Set page config
 st.set_page_config(page_title="Transcripto", page_icon="✍️", layout="centered")
-
-# Check if FFmpeg exists, else set the correct path
-FFMPEG_PATH = shutil.which("ffmpeg")
-if not FFMPEG_PATH:
-    st.error("⚠️ FFmpeg is missing! Try adding it manually.")
-    st.stop()  # Stop execution if FFmpeg is not found
-
-# Set FFmpeg path in environment
-os.environ["PATH"] += os.pathsep + os.path.dirname(FFMPEG_PATH)
 
 # Load Whisper Model (cached)
 @st.cache_resource
@@ -52,10 +43,21 @@ language_code = language_options[selected_language]  # Get correct language code
 # Translator for multi-language sentiment analysis
 translator = Translator()
 
+# Function to Convert Audio to WAV (Fixes FFmpeg issue)
+def convert_to_wav(audio_path):
+    audio = AudioSegment.from_file(audio_path)
+    wav_path = audio_path.replace(audio_path.split(".")[-1], "wav")
+    audio.export(wav_path, format="wav")
+    return wav_path
+
 # Function to Transcribe Audio
 def transcribe_audio(file_path, language_code):
     if os.stat(file_path).st_size == 0:
         return "⚠️ Error: Empty audio file. Please try again."
+
+    # Convert to WAV if not already
+    if not file_path.endswith(".wav"):
+        file_path = convert_to_wav(file_path)
 
     try:
         if language_code is None:
