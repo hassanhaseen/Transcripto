@@ -4,4 +4,3 @@ numpy
 scipy
 textblob
 googletrans==4.0.0-rc1
-torchaudio
