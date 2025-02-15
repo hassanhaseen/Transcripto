@@ -3,14 +3,23 @@ import whisper
 import tempfile
 import os
 import warnings
+import subprocess
 from textblob import TextBlob
-from googletrans import Translator  # For multi-language sentiment analysis
+from googletrans import Translator
 
 # Suppress Whisper FP16 warning
 warnings.filterwarnings("ignore", message="FP16 is not supported on CPU")
 
 # Set page config
 st.set_page_config(page_title="Transcripto", page_icon="✍️", layout="centered")
+
+# Download and set up FFmpeg if not available
+FFMPEG_PATH = "/tmp/ffmpeg"
+if not os.path.exists(FFMPEG_PATH):
+    st.info("Downloading FFmpeg... (Required for audio processing)")
+    subprocess.run("wget -q https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz -O /tmp/ffmpeg.tar.xz", shell=True)
+    subprocess.run("tar -xf /tmp/ffmpeg.tar.xz --strip-components=1 -C /tmp", shell=True)
+    os.environ["PATH"] += os.pathsep + "/tmp"
 
 # Load Whisper Model (cached)
 @st.cache_resource
