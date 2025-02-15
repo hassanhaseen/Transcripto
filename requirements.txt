@@ -1,0 +1,7 @@
+streamlit==1.30.0
+openai-whisper
+numpy
+sounddevice
+scipy
+textblob
+googletrans==4.0.0-rc1
