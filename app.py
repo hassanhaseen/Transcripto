@@ -3,7 +3,7 @@ import whisper
 import tempfile
 import os
 import warnings
-import ffmpeg
+import shutil
 from textblob import TextBlob
 from googletrans import Translator
 
@@ -12,6 +12,15 @@ warnings.filterwarnings("ignore", message="FP16 is not supported on CPU")
 
 # Set page config
 st.set_page_config(page_title="Transcripto", page_icon="✍️", layout="centered")
+
+# Check if FFmpeg exists, else set the correct path
+FFMPEG_PATH = shutil.which("ffmpeg")
+if not FFMPEG_PATH:
+    st.error("⚠️ FFmpeg is missing! Try adding it manually.")
+    st.stop()  # Stop execution if FFmpeg is not found
+
+# Set FFmpeg path in environment
+os.environ["PATH"] += os.pathsep + os.path.dirname(FFMPEG_PATH)
 
 # Load Whisper Model (cached)
 @st.cache_resource
