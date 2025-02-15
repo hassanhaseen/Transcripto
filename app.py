@@ -3,7 +3,8 @@ import whisper
 import tempfile
 import os
 import warnings
-import librosa  # Used to handle audio files instead of ffmpeg
+import librosa
+import soundfile as sf  # Replaces librosa.output.write_wav
 from textblob import TextBlob
 from googletrans import Translator
 
@@ -43,11 +44,11 @@ language_code = language_options[selected_language]  # Get correct language code
 # Translator for multi-language sentiment analysis
 translator = Translator()
 
-# Function to Load Audio with `librosa` Instead of `ffmpeg`
+# Function to Load Audio with `librosa` and Convert to WAV
 def load_audio(file_path):
     y, sr = librosa.load(file_path, sr=16000)  # Convert to 16kHz
     temp_wav = file_path.replace(file_path.split(".")[-1], "wav")
-    librosa.output.write_wav(temp_wav, y, sr)  # Save as WAV
+    sf.write(temp_wav, y, sr)  # Save as WAV using soundfile
     return temp_wav
 
 # Function to Transcribe Audio
