@@ -5,7 +5,6 @@ import os
 import warnings
 from textblob import TextBlob
 from googletrans import Translator
-from pydub import AudioSegment
 
 # Suppress Whisper FP16 warning
 warnings.filterwarnings("ignore", message="FP16 is not supported on CPU")
@@ -43,27 +42,13 @@ language_code = language_options[selected_language]  # Get correct language code
 # Translator for multi-language sentiment analysis
 translator = Translator()
 
-# Function to Convert Audio to WAV (Fixes FFmpeg issue)
-def convert_to_wav(audio_path):
-    audio = AudioSegment.from_file(audio_path)
-    wav_path = audio_path.replace(audio_path.split(".")[-1], "wav")
-    audio.export(wav_path, format="wav")
-    return wav_path
-
 # Function to Transcribe Audio
 def transcribe_audio(file_path, language_code):
     if os.stat(file_path).st_size == 0:
         return "⚠️ Error: Empty audio file. Please try again."
 
-    # Convert to WAV if not already
-    if not file_path.endswith(".wav"):
-        file_path = convert_to_wav(file_path)
-
     try:
-        if language_code is None:
-            result = model.transcribe(file_path)
-        else:
-            result = model.transcribe(file_path, language=language_code)
+        result = model.transcribe(file_path, language=language_code)
         return result["text"]
     except Exception as e:
         return f"⚠️ Error during transcription: {str(e)}"
@@ -89,7 +74,7 @@ def analyze_sentiment(text, language_code):
 # File Upload Mode
 if app_mode == "📂 File Upload":
     st.title("📂 Upload an Audio File for Transcription")
-    uploaded_file = st.file_uploader("📥 Select an Audio File (MP3, WAV, M4A)", type=["mp3", "wav", "m4a"])
+    uploaded_file = st.file_uploader("📥 Select an Audio File (MP3, WAV, M4A, FLAC)", type=["mp3", "wav", "m4a", "flac"])
 
     if uploaded_file:
         file_ext = uploaded_file.name.split(".")[-1]
