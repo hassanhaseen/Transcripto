@@ -6,11 +6,14 @@ import warnings
 import torch
 import soundfile as sf
 import numpy as np
+import noisereduce as nr
 from textblob import TextBlob
 from transformers import pipeline
 from gtts import gTTS
 from deep_translator import GoogleTranslator
-from pydub import AudioSegment  # For audio processing
+from pydub import AudioSegment
+import pyaudio
+import wave
 
 # Suppress Whisper FP16 warning
 warnings.filterwarnings("ignore", message="FP16 is not supported on CPU")
@@ -70,9 +73,37 @@ def translate_text(text, target_language):
     except Exception as e:
         return f"⚠ Translation Error: {str(e)}"
 
-# ✅ UI: File Upload
-st.title("🎙️ Transcripto - AI-Powered Speech-to-Text")
-uploaded_file = st.file_uploader("📥 Upload an Audio File (MP3, WAV, M4A)", type=["mp3", "wav", "m4a"])
+# ✅ Function to Record Live Audio
+def record_audio(filename, duration=5, samplerate=44100):
+    chunk = 1024
+    format = pyaudio.paInt16
+    channels = 1
+    rate = samplerate
+
+    p = pyaudio.PyAudio()
+    stream = p.open(format=format, channels=channels, rate=rate, input=True, frames_per_buffer=chunk)
+
+    st.write("🎤 Recording... Speak now!")
+    frames = []
+    for _ in range(0, int(rate / chunk * duration)):
+        data = stream.read(chunk)
+        frames.append(data)
+
+    st.write("✅ Recording finished!")
+
+    stream.stop_stream()
+    stream.close()
+    p.terminate()
+
+    with wave.open(filename, 'wb') as wf:
+        wf.setnchannels(channels)
+        wf.setsampwidth(p.get_sample_size(format))
+        wf.setframerate(rate)
+        wf.writeframes(b''.join(frames))
+
+# ✅ UI: Select Mode
+st.sidebar.title("🎙️ Transcripto - AI-Powered Speech-to-Text")
+mode = st.sidebar.radio("Choose Mode", ["🎤 Record & Transcribe", "📂 Upload & Transcribe"])
 
 # ✅ UI: Select Language
 language_options = {"English": "en", "Urdu": "ur", "Hindi": "hi", "French": "fr", "Spanish": "es"}
@@ -83,38 +114,56 @@ language_code = language_options[selected_language]
 translation_options = {"No Translation": None, "English": "en", "Urdu": "ur", "Spanish": "es", "French": "fr"}
 selected_translation = st.selectbox("🌍 Translate To:", list(translation_options.keys()))
 
-if uploaded_file:
-    st.audio(uploaded_file, format="audio/mp3")
+if mode == "📂 Upload & Transcribe":
+    uploaded_file = st.file_uploader("📥 Upload an Audio File (MP3, WAV, M4A)", type=["mp3", "wav", "m4a"])
 
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as temp_file:
-        temp_file.write(uploaded_file.read())
-        temp_audio_path = temp_file.name
+    if uploaded_file:
+        st.audio(uploaded_file, format="audio/mp3")
 
-    if st.button("🎬 Start Transcription"):
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as temp_file:
+            temp_file.write(uploaded_file.read())
+            temp_audio_path = temp_file.name
+
+        if st.button("🎬 Start Transcription"):
+            with st.spinner(f"Transcribing in {selected_language}... Please wait."):
+                try:
+                    transcribed_text = transcribe_audio(temp_audio_path)
+                    sentiment_result = analyze_sentiment(transcribed_text)
+
+                    if translation_options[selected_translation]:
+                        translated_text = translate_text(transcribed_text, translation_options[selected_translation])
+                    else:
+                        translated_text = "No translation selected."
+
+                    # ✅ Display Results
+                    st.success("✅ Transcription Complete!")
+                    st.subheader("📜 Transcribed Text:")
+                    st.text_area("Text:", transcribed_text, height=150)
+
+                    st.subheader("💬 Sentiment Analysis:")
+                    st.write(sentiment_result)
+
+                    if translation_options[selected_translation]:
+                        st.subheader("🌍 Translated Text:")
+                        st.text_area("Translation:", translated_text, height=100)
+
+                    st.download_button("⬇️ Download Transcription", transcribed_text, "transcription.txt", "text/plain")
+                except Exception as e:
+                    st.error(f"⚠ Transcription Failed: {str(e)}")
+
+        os.remove(temp_audio_path)
+
+elif mode == "🎤 Record & Transcribe":
+    duration = st.slider("🎙️ Set Recording Duration (seconds)", min_value=3, max_value=30, value=5)
+    if st.button("🎬 Start Recording"):
+        temp_audio_path = "recorded_audio.wav"
+        record_audio(temp_audio_path, duration)
+
+        st.audio(temp_audio_path, format="audio/wav")
+
         with st.spinner(f"Transcribing in {selected_language}... Please wait."):
-            try:
-                transcribed_text = transcribe_audio(temp_audio_path)
-                sentiment_result = analyze_sentiment(transcribed_text)
-
-                if translation_options[selected_translation]:
-                    translated_text = translate_text(transcribed_text, translation_options[selected_translation])
-                else:
-                    translated_text = "No translation selected."
-
-                # ✅ Display Results
-                st.success("✅ Transcription Complete!")
-                st.subheader("📜 Transcribed Text:")
-                st.text_area("Text:", transcribed_text, height=150)
-
-                st.subheader("💬 Sentiment Analysis:")
-                st.write(sentiment_result)
-
-                if translation_options[selected_translation]:
-                    st.subheader("🌍 Translated Text:")
-                    st.text_area("Translation:", translated_text, height=100)
-
-                st.download_button("⬇️ Download Transcription", transcribed_text, "transcription.txt", "text/plain")
-            except Exception as e:
-                st.error(f"⚠ Transcription Failed: {str(e)}")
-
-    os.remove(temp_audio_path)
+            transcribed_text = transcribe_audio(temp_audio_path)
+            st.success("✅ Transcription Complete!")
+            st.subheader("📜 Transcribed Text:")
+            st.text_area("Text:", transcribed_text, height=150)
+            os.remove(temp_audio_path)
