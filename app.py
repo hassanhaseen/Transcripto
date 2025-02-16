@@ -128,16 +128,16 @@ elif mode == "🎤 Record & Transcribe":
     st.write("🎙 Click the button below to start recording.")
     audio_data = mic_recorder(start_prompt="🎤 Start Recording", stop_prompt="⏹️ Stop Recording")
 
-    if audio_data:
+    if audio_data is not None:  # ✅ Ensure audio_data exists before processing
         with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_file:
-            temp_file.write(audio_data)
-            temp_audio_path = temp_file.name
+            temp_wav_path = temp_file.name
+            sf.write(temp_wav_path, audio_data, 44100)  # ✅ Convert NumPy array to WAV
 
-        st.audio(temp_audio_path, format="audio/wav")
+        st.audio(temp_wav_path, format="audio/wav")
 
         with st.spinner(f"Transcribing in {selected_language}... Please wait."):
-            transcribed_text = transcribe_audio(temp_audio_path)
+            transcribed_text = transcribe_audio(temp_wav_path)
             st.success("✅ Transcription Complete!")
             st.subheader("📜 Transcribed Text:")
             st.text_area("Text:", transcribed_text, height=150)
-            os.remove(temp_audio_path)
+            os.remove(temp_wav_path)
