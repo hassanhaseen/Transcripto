@@ -13,7 +13,7 @@ It supports **multiple languages**, **audio recording**, **file uploads**, and e
 ---
 
 ## 🚀 Live Demo  
-🔗 **Try it here:** [YOUR_STREAMLIT_DEPLOYMENT_LINK]  
+🔗 **Try it here:** https://haseen-transcripto.streamlit.app/
 
 ---
 
