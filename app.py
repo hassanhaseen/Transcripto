@@ -12,8 +12,7 @@ from transformers import pipeline
 from gtts import gTTS
 from deep_translator import GoogleTranslator
 from pydub import AudioSegment
-import pyaudio
-import wave
+from streamlit_mic_recorder import mic_recorder  # ✅ Replaces pyaudio for recording
 
 # Suppress Whisper FP16 warning
 warnings.filterwarnings("ignore", message="FP16 is not supported on CPU")
@@ -73,34 +72,6 @@ def translate_text(text, target_language):
     except Exception as e:
         return f"⚠ Translation Error: {str(e)}"
 
-# ✅ Function to Record Live Audio
-def record_audio(filename, duration=5, samplerate=44100):
-    chunk = 1024
-    format = pyaudio.paInt16
-    channels = 1
-    rate = samplerate
-
-    p = pyaudio.PyAudio()
-    stream = p.open(format=format, channels=channels, rate=rate, input=True, frames_per_buffer=chunk)
-
-    st.write("🎤 Recording... Speak now!")
-    frames = []
-    for _ in range(0, int(rate / chunk * duration)):
-        data = stream.read(chunk)
-        frames.append(data)
-
-    st.write("✅ Recording finished!")
-
-    stream.stop_stream()
-    stream.close()
-    p.terminate()
-
-    with wave.open(filename, 'wb') as wf:
-        wf.setnchannels(channels)
-        wf.setsampwidth(p.get_sample_size(format))
-        wf.setframerate(rate)
-        wf.writeframes(b''.join(frames))
-
 # ✅ UI: Select Mode
 st.sidebar.title("🎙️ Transcripto - AI-Powered Speech-to-Text")
 mode = st.sidebar.radio("Choose Mode", ["🎤 Record & Transcribe", "📂 Upload & Transcribe"])
@@ -154,10 +125,13 @@ if mode == "📂 Upload & Transcribe":
         os.remove(temp_audio_path)
 
 elif mode == "🎤 Record & Transcribe":
-    duration = st.slider("🎙️ Set Recording Duration (seconds)", min_value=3, max_value=30, value=5)
-    if st.button("🎬 Start Recording"):
-        temp_audio_path = "recorded_audio.wav"
-        record_audio(temp_audio_path, duration)
+    st.write("🎙 Click the button below to start recording.")
+    audio_data = mic_recorder(start_prompt="🎤 Start Recording", stop_prompt="⏹️ Stop Recording")
+
+    if audio_data:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_file:
+            temp_file.write(audio_data)
+            temp_audio_path = temp_file.name
 
         st.audio(temp_audio_path, format="audio/wav")
 
