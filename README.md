@@ -1,6 +1,6 @@
 # ✍️ Transcripto - AI-Powered Speech-to-Text App  
 
-🚀 **Transcripto is an advanced speech-to-text application powered by OpenAI Whisper, Streamlit, and AI-driven language processing tools. It allows users to transcribe speech, analyze sentiment, and translate text in multiple languages.**!  
+🚀 **Transcripto is an advanced speech-to-text application powered by OpenAI Whisper, Streamlit, and AI-driven language processing tools. It allows users to transcribe speech, analyze sentiment, and translate text in multiple languages**!  
 
 ## 🎯 Features  
 ✅ 📻 **Record & Transcribe** - Live speech recording & transcription
