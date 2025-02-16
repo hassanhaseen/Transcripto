@@ -1,14 +1,13 @@
 # ✍️ Transcripto - AI-Powered Speech-to-Text App  
 
-🚀 **Transcripto** is an AI-powered **speech-to-text web app** built with **Streamlit** and **OpenAI's Whisper**.  
-It supports **multiple languages**, **audio recording**, **file uploads**, and even **sentiment analysis**!  
+🚀 **Transcripto is an advanced speech-to-text application powered by OpenAI Whisper, Streamlit, and AI-driven language processing tools. It allows users to transcribe speech, analyze sentiment, and translate text in multiple languages.**!  
 
 ## 🎯 Features  
-✅ **Record & Transcribe** – Record audio directly from your browser  
-✅ **Upload & Transcribe** – Upload MP3/WAV/M4A files for transcription  
-✅ **Multi-Language Support** – Choose from **English, Urdu, Hindi, French, Spanish**, or **Auto Detect**  
-✅ **AI Sentiment Analysis** – Detects if the transcribed text is **Positive 😊, Neutral 😐, or Negative 😡**  
-✅ **Simple & Fast UI** – Built with **Streamlit**  
+✅ 📻 **Record & Transcribe** - Live speech recording & transcription
+✅ 📚 **Upload & Transcribe** - Supports MP3, WAV, M4A audio files
+✅ 🌐 **Multi-Language Support** - Auto-detect or manually select language
+✅ 🚀 **Sentiment Analysis** - Detects emotional tone (Positive, Neutral, Negative)
+✅ 🌟 **Streamlit Cloud Deployment** - Access from anywhere
 
 ---
 
@@ -46,12 +45,12 @@ Now, open http://localhost:8501 in your browser and start transcribing! 🎤
 ---
 
 ## 🔧 Tech Stack  
-- **Whisper AI** (Speech-to-Text)  
-- **Streamlit** (Frontend & UI)  
-- **Google Translate API** (Multi-Language Sentiment Analysis)  
-- **TextBlob** (Sentiment Analysis)  
-- **Sounddevice & Scipy** (Audio Processing)  
-
+- **Python** - Backend scripting
+- **Streamlit** - User-friendly UI
+- **OpenAI Whisper** - High-accuracy ASR model
+- **Deep-Translator** - Translation support
+- **TextBlob** - Sentiment analysis
+- **Pydub** - Audio processing
 ---
 
 ## 📌 Contributing  
