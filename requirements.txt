@@ -1,6 +1,12 @@
-streamlit==1.30.0
+streamlit
 openai-whisper
+torch
+transformers
+gtts
+deep-translator
+soundfile
 numpy
-scipy
+noisereduce
 textblob
-googletrans==4.0.0-rc1
+pydub
+ffmpeg-python
