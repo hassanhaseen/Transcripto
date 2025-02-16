@@ -10,3 +10,4 @@ noisereduce
 textblob
 pydub
 ffmpeg-python
+streamlit_mic_recorder
