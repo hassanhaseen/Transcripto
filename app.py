@@ -17,13 +17,16 @@ from streamlit_mic_recorder import mic_recorder  # ✅ Replaces pyaudio for reco
 # Suppress Whisper FP16 warning
 warnings.filterwarnings("ignore", message="FP16 is not supported on CPU")
 
+# Explicitly set FFmpeg path
+os.environ["PATH"] += os.pathsep + "/usr/bin"
+
 # Set page config
 st.set_page_config(page_title="Transcripto", page_icon="✍️", layout="centered")
 
 # ✅ Load Whisper Model (CPU Mode for Compatibility)
 @st.cache_resource
 def load_model():
-    return whisper.load_model("small", device="cpu")  # Running on CPU to avoid memory errors
+    return whisper.load_model("small", device="cpu")  # Running on CPU to avoid memory issues
 
 model = load_model()
 
@@ -126,12 +129,12 @@ if mode == "📂 Upload & Transcribe":
 
 elif mode == "🎤 Record & Transcribe":
     st.write("🎙 Click the button below to start recording.")
-    audio_data = mic_recorder(start_prompt="🎤 Start Recording", stop_prompt="⏹️ Stop Recording")
+    audio_data = mic_recorder(start_prompt="🎤 Start Recording", stop_prompt="⏹️ Stop Recording", key="mic")
 
     if audio_data is not None:  # ✅ Ensure audio_data exists before processing
         with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_file:
             temp_wav_path = temp_file.name
-            sf.write(temp_wav_path, audio_data, 44100)  # ✅ Convert NumPy array to WAV
+            sf.write(temp_wav_path, np.array(audio_data, dtype=np.float32), 44100)  # ✅ Convert NumPy array to WAV
 
         st.audio(temp_wav_path, format="audio/wav")
 
