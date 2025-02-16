@@ -14,15 +14,6 @@
 ## 🚀 Live Demo  
 🔗 **Try it here:** https://haseen-transcripto.streamlit.app/
 
-## 🚀 Live Demo  
-🔗 **[Try it here](https://haseen-transcripto.streamlit.app/){:target="_blank"}**
-
-## 🚀 Live Demo  
-🔗 **[Try it here](https://haseen-transcripto.streamlit.app/)** (opens in a new tab)
-
-## 🚀 Live Demo  
-🔗 <a href="https://haseen-transcripto.streamlit.app/" target="_blank">**Try it here**</a>
-
 ---
 
 ## 📦 Installation  
